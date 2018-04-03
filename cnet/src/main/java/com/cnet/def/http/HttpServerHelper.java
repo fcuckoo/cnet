@@ -11,7 +11,8 @@ import com.cnet.def.http.request.CRequestConstants;
 import com.cnet.def.http.request.IBaseRequest;
 import com.cnet.def.http.resp.IErrResp;
 import com.cnet.def.http.resp.IRespBase;
-import com.cnet.util.StringUtil;
+import com.cnet.impl.volley.VolleyHttpServer;
+import com.cutil.ST;
 
 import java.util.HashSet;
 
@@ -89,6 +90,17 @@ public class HttpServerHelper {
     }
 
     /**
+     * All request done. and notify
+     * @param callback
+     */
+    public static void onAllRequestDone(CAbstractRequst request, IReqCallback callback){
+        if( callback != null && request != null  ) {
+            final int reqCode = request.getReqCode();
+            callback.onAllRequestDone(reqCode,request);
+        }
+    }
+
+    /**
      * Callback to request start.
      * @param request
      * @param callback
@@ -157,7 +169,7 @@ public class HttpServerHelper {
             return context.getString(R.string.net_reuqest_error) + errResp.getStatus();
         }
         String errMsg = errResp.getErrMsg();
-        if(StringUtil.isEmpty(errMsg)){
+        if(ST.isEmpty(errMsg)){
             //Get default message.
             errMsg = getString(request.getDefaultFailureMsg(),context);
         }
@@ -198,5 +210,37 @@ public class HttpServerHelper {
 
         }
         return null ;
+    }
+
+    /**
+     * 判断req中是否有自带RootRespClass， 如果没有则用默认的
+     * @param defBaseClz
+     * @param req
+     * @return
+     */
+    public static Class parseRootRespClass(Class defBaseClz, CAbstractRequst req){
+        Class rootResp = defBaseClz;
+        if( req != null &&
+                req.getRespRootClass() != null ){
+            rootResp = req.getRespRootClass();
+        }
+        return rootResp;
+    }
+
+    /**
+     *  判断当前请求是不是采用默认方式处理http请求， 如果不是， 则采用req中指定的处理方式
+     * @param defHttpExecutor
+     *  默认http请求实现类， 当前代码中默认为{@link VolleyHttpServer}
+     * @param req
+     *  接口请求信息
+     * @return
+     */
+    public static IHttpServer parseHttpExecutor(IHttpServer defHttpExecutor, CAbstractRequst req){
+        IHttpServer executor = defHttpExecutor;
+        if( req != null &&
+                req.getHttpExecuter() != null ){
+            executor = req.getHttpExecuter();
+        }
+        return executor;
     }
 }

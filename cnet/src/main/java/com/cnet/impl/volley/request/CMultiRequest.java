@@ -5,10 +5,11 @@ import com.android.internal.http.multipart.Part;
 import com.android.internal.http.multipart.StringPart;
 import com.android.volley.AuthFailureError;
 import com.android.volley.Response;
-import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.cnet.util.CListUtil;
+import com.cnet.CNet;
 import com.cnet.util.HttpHeaderUtil;
+import com.cutil.CListUtil;
+import com.cutil.log.CLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -54,7 +55,7 @@ public class CMultiRequest extends StringRequest {
         try {
             Part.sendParts(baos, getAllParams());
         } catch (IOException e) {
-            VolleyLog.e(e, "error when sending parts to output!");
+            CLog.e(CNet.LOG_TAG,"error when sending parts to output!",e);
         }
         return baos.toByteArray();
     }

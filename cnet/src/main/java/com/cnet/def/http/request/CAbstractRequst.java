@@ -2,10 +2,13 @@ package com.cnet.def.http.request;
 
 import android.content.Context;
 
-import com.cnet.util.gson.GsonUtil;
 import com.cnet.def.http.CHttpMethod;
-import com.cnet.util.CListUtil;
-import com.cnet.util.StringUtil;
+import com.cnet.def.http.HttpServer;
+import com.cnet.def.http.IHttpServer;
+import com.cnet.util.gson.GsonUtil;
+import com.cutil.CListUtil;
+import com.cutil.ST;
+import com.cutil.log.ILog;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Field;
@@ -55,6 +58,12 @@ public class CAbstractRequst<T> {
     /**Data class */
     @SerializedName(CRequestConstants.TAG_IGNORE)
     private transient Class<T> respObjClass = null  ;
+    /**Root class */
+    @SerializedName(CRequestConstants.TAG_IGNORE)
+    private transient Class<T> respRootClass = null  ;
+    /**Http executer, if have not set, used default executer,{@link HttpServer#init(Context, Class, Class, boolean, ILog)} */
+    @SerializedName(CRequestConstants.TAG_IGNORE)
+    private transient IHttpServer httpExecuter = null ;
     /**Tag */
     private transient Object tag;
     /**Used to flag every request*/
@@ -73,7 +82,7 @@ public class CAbstractRequst<T> {
      * @return
      */
     public String getFullUrl(){
-        return StringUtil.f(baseUrl) + StringUtil.f(postFixUrl);
+        return ST.f(baseUrl) + ST.f(postFixUrl);
     }
 
     /**
@@ -103,11 +112,11 @@ public class CAbstractRequst<T> {
                         entry.getValue() instanceof String){
                     value = (String)entry.getValue();
                 }else {
-                    new RuntimeException("method:" + StringUtil.f(postFixUrl) +
+                    new RuntimeException("method:" + ST.f(postFixUrl) +
                             "`s param is not string" +
                             key + ":" + value);
                 }
-                if(StringUtil.isEmpty(key)){
+                if(ST.isEmpty(key)){
                     continue;
                 }
                 if(sb.length() > 0){
@@ -143,7 +152,7 @@ public class CAbstractRequst<T> {
                         continue ;
                     }
                 }
-                if(StringUtil.isEmpty(key)){
+                if(ST.isEmpty(key)){
                     key = t_field.getName();
                 }
 
@@ -233,6 +242,10 @@ public class CAbstractRequst<T> {
         return respObjClass;
     }
 
+    public void setRespObjClass(Class<T> respObjClass) {
+        this.respObjClass = respObjClass;
+    }
+
     public String getBaseUrl() {
         return baseUrl;
     }
@@ -257,4 +270,19 @@ public class CAbstractRequst<T> {
         this.reqCode = reqCode;
     }
 
+    public Class<T> getRespRootClass() {
+        return respRootClass;
+    }
+
+    public void setRespRootClass(Class<T> respRootClass) {
+        this.respRootClass = respRootClass;
+    }
+
+    public IHttpServer getHttpExecuter() {
+        return httpExecuter;
+    }
+
+    public void setHttpExecuter(IHttpServer httpExecuter) {
+        this.httpExecuter = httpExecuter;
+    }
 }

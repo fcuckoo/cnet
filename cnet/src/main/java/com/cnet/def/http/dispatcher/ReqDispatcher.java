@@ -2,6 +2,7 @@ package com.cnet.def.http.dispatcher;
 
 import android.content.Context;
 
+import com.cnet.CNet;
 import com.cnet.def.caller.IReqCallback;
 import com.cnet.def.caller.IReqRefactor;
 import com.cnet.def.http.HttpServerHelper;
@@ -9,7 +10,8 @@ import com.cnet.def.http.IHttpServer;
 import com.cnet.def.http.request.CAbstractRequst;
 import com.cnet.def.http.request.IBaseRequest;
 import com.cnet.def.http.resp.IErrResp;
-import com.cnet.util.CListUtil;
+import com.cutil.CListUtil;
+import com.cutil.log.CLog;
 
 import java.util.ArrayList;
 import java.util.Vector;
@@ -89,6 +91,7 @@ public class ReqDispatcher {
         if (CListUtil.isEmpty(allMajorRequests)) {
             return false;
         }
+        CLog.d(CNet.LOG_TAG,"==dispatch all requests==\nsize=["+ CListUtil.getSize(allMajorRequests) + "]");
         //并发执行所有请求
         IBaseRequest request = null;
         for (int i = 0; i < allMajorRequests.size(); i++) {
@@ -167,6 +170,8 @@ public class ReqDispatcher {
                     //处理并显示错误信息
                     reqErrorReceiver.onShowError(reqCallback);
                 }
+                //通知所有请求结束
+                HttpServerHelper.onAllRequestDone(request,reqCallback);
                 release();
             }
         }

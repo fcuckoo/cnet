@@ -13,10 +13,10 @@
  ******************************************************************************/
 package com.cnet.util.gson;
 
-import android.util.Log;
-
+import com.cnet.CNet;
 import com.cnet.def.http.exception.HttpException;
-import com.cnet.util.StringUtil;
+import com.cutil.ST;
+import com.cutil.log.CLog;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
@@ -64,7 +64,7 @@ public class GsonUtil {
 	 * @return
 	 */
 	public static <T> T parseJson(String json, final Class<T> objClass){
-		return parseJsonByArgumentArray(objClass,json,null);
+		return getGson().fromJson(json,objClass);
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class GsonUtil {
 	 * @return
 	 */
 	public static <T> T parseJsonByArgumentArray(Class<T> rootClass, String json,  Class[] objClass){
-		if( !StringUtil.isEmpty(json) ){
+		if( !ST.isEmpty(json) ){
 			try{
 				return getGson().fromJson(json,getNewType(rootClass,objClass));
 			}catch (JsonSyntaxException e) {
@@ -95,7 +95,7 @@ public class GsonUtil {
      * @return
      */
 	public static <T> T parseJsonByArgument(Class<T> rootClass, String json,  Class... objClass){
-		if( !StringUtil.isEmpty(json) ){
+		if( !ST.isEmpty(json) ){
 			try{
 				return getGson().fromJson(json,getNewType(rootClass,objClass));
 			}catch (JsonSyntaxException e) {
@@ -154,11 +154,11 @@ public class GsonUtil {
 	 * @return
 	 */
 	public static <T> T fromJson(String json,  Type typeOfT){
-		if( !StringUtil.isEmpty(json) ){
+		if( !ST.isEmpty(json) ){
 			try{
 				return getGson().fromJson(json, typeOfT);
 			}catch (JsonSyntaxException e) {
-				Log.e("", "Parse json error: " + e.getMessage());
+				CLog.e(CNet.LOG_TAG,"Parse json error: " + e.getMessage());
 				throw new HttpException("Parse json error" + e.getMessage());
 			}
 		}

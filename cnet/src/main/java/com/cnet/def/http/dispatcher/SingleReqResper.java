@@ -1,5 +1,6 @@
 package com.cnet.def.http.dispatcher;
 
+import com.cnet.CNet;
 import com.cnet.def.caller.IReqCallback;
 import com.cnet.def.http.HttpServerHelper;
 import com.cnet.def.http.IHttpServerCallback;
@@ -7,6 +8,8 @@ import com.cnet.def.http.exception.HttpException;
 import com.cnet.def.http.request.CAbstractRequst;
 import com.cnet.def.http.resp.IErrResp;
 import com.cnet.def.http.resp.IRespBase;
+import com.cutil.ST;
+import com.cutil.log.CLog;
 
 /**
  *
@@ -46,6 +49,9 @@ public class SingleReqResper implements IHttpServerCallback{
      */
     @Override
     public <T> void onResponse(IRespBase<T> respObj, CAbstractRequst req) {
+        CLog.d(CNet.LOG_TAG,"==dispatch single request complete==\nreqCode=["+req.getReqCode()+"]\n"+
+                "url=["+ req.getFullUrl() + "],\n" +
+                "json=["+ ST.f(respObj.getJson()) + "]");
         if(respObj == null ){
             HttpException exception = new HttpException(IErrResp.STATUS_RESPNULL,"Response is null");
             onErrResponse(exception,request);
@@ -70,6 +76,9 @@ public class SingleReqResper implements IHttpServerCallback{
      */
     @Override
     public void onErrResponse(IErrResp errResp, CAbstractRequst req) {
+        CLog.d(CNet.LOG_TAG,"==dispatch single request failure==\nreqCode=["+req.getReqCode()+"]\n"+
+                "url=["+ req.getFullUrl() + "],\n" +
+                "err=["+ ST.f(errResp.getErrMsg()) + "]");
         //Callback request failure.
         HttpServerHelper.onRequestFailure(request,errResp, reqCallback);
         onRequestComplete(errResp);
