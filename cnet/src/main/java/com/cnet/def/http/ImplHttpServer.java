@@ -47,23 +47,41 @@ public class ImplHttpServer {
         if( httpServer == null ){
             new RuntimeException("HttpServer impl class is incorrect." + implClass.toString());
         }
-        IRespBase respBase = null ;
-        try {
-            Object obj = respClass.newInstance();
-            if( obj instanceof IRespBase){
-                respBase = (IRespBase)obj;
-            }
+ 		try {
+            checkBaseRespClass(respClass);
         }catch (Exception e){
-
-        }
-        if( respBase == null ){
-            new RuntimeException("Base response class is incorrect." + respClass.toString());
+            throw e;
         }
         context = ctx.getApplicationContext();
         httpServerImpl = httpServer;
         isReturnJson = isNeedReturnJson ;
         baseRespClass = respClass;
     }
+
+    /**
+     * 检查接口返回的顶级节点是否实现{@link IRespBase}接口
+     * @param respClass
+     * @return
+     */
+    protected static boolean checkBaseRespClass(Class respClass){
+        IRespBase respBase = null ;
+        if( respClass != null){
+            try {
+                Object obj = respClass.newInstance();
+                if( obj instanceof IRespBase){
+                    respBase = (IRespBase)obj;
+                }
+            }catch (Exception e){
+
+            }
+        }
+        if( respBase == null ){
+            new RuntimeException("Base response class is incorrect." + respClass.toString());
+            return false ;
+        }
+        return true ;
+    }
+
 
     /**
      *
@@ -151,21 +169,39 @@ public class ImplHttpServer {
     /******************************************************/
     /**
      * Get data by async request list.
-     * @param requestList
      * @param requestCallback
      * @param requestRefactor 重置请求参数回调
+     * @param baseRespCls 返回json的第一级节点信息， 需要实现{@link IRespBase}接口<br>
+     *      当值为null时采用默认基类节点{@link #baseRespClass}
+     * @param httpServer
+     *  自己指定网络请求框架
+     * @param requestList
      * @return
      */
-    protected static boolean getData(IReqCallback requestCallback, IReqRefactor requestRefactor,
-                                     IBaseRequest... requestList){
+    protected static boolean getData(IReqCallback requestCallback,
+                                     IReqRefactor requestRefactor,
+                                     Class baseRespCls,
+                                     IHttpServer httpServer,
+                                     IBaseRequest... requestList) {
         if( !isInit() ){
             return false ;
         }
+        if( baseRespCls == null ){
+            baseRespCls = baseRespClass;
+        }else {
+            if (!checkBaseRespClass(baseRespCls)) {
+                return false;
+            }
+        }
+
+        if( httpServer == null ){
+            httpServer = httpServerImpl ;
+        }
+
         //执行请求
         ReqDispatcher dispatcher = new ReqDispatcher(context,
                 requestList,requestCallback,requestRefactor,
-                baseRespClass,
-                isReturnJson,httpServerImpl);
+                baseRespCls,isReturnJson,httpServer);
         DefReqErrReceiver reqErrReceiver = new DefReqErrReceiver(context);
         dispatcher.setReqErrorReceiver(reqErrReceiver);
         return dispatcher.onDispatch();

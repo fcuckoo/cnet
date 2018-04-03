@@ -1,5 +1,5 @@
 /*******************************************************************************
- * @project: 
+ * @project:
  * @file: GsonUtil.java
  * @author: Cuckoo
  * @created: 2012-05-6
@@ -27,16 +27,16 @@ import java.util.ArrayList;
 
 public class GsonUtil {
 	private static Gson gson = null ;
-	
+
 	private static Gson getGson(){
 		if( gson == null ){
 			gson = new Gson() ;
 		}
 		return gson ;
 	}
-	
+
 	/**
-	 * Transfer the java bean to JSON string. 
+	 * Transfer the java bean to JSON string.
 	 * Notice the bean mast can be serialize.
 	 * @param bean
 	 * @return
@@ -44,7 +44,7 @@ public class GsonUtil {
 	public static String toJson(Object bean){
 		return getGson().toJson(bean);
 	}
-	
+
 	/**
 	 * 将bean转成数组形式
 	 * @param bean
@@ -55,8 +55,8 @@ public class GsonUtil {
 	public static String toJson(Object bean,Type typeOfSrc){
 		return getGson().toJson(bean, typeOfSrc);
 	}
-	
-	
+
+
 	/**
 	 * 将字符串转成objClass类型的变量
 	 * @param json
@@ -147,7 +147,7 @@ public class GsonUtil {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param json
 	 * @param typeOfT
 	 * 	Type typeOfSrc = new TypeToken<ArrayList<Object>>(){}.getType();
@@ -164,10 +164,28 @@ public class GsonUtil {
 		}
 		return null ;
 	}
+
+	/**
+	 * 转换为List
+	 * @param json
+	 * @param type
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> ArrayList<T> toList(String json, Type type){
+		if(!ST.isEmpty(json)){
+			try {
+				return gson.fromJson(json, type);
+			} catch (Exception e) {
+				CLog.e("",e.getLocalizedMessage());
+			}
+		}
+		return null ;
+	}
 }
 /*******************************************************************************
  * Revision History [type 'revision' & press Alt + '/' to insert revision block]
- * 
+ *
  * [Revision on 2012-5-6 17:44:09 by Cuckoo]<BR>
  * Create a util for parse and packaging JSON .
  * Copyright 2011 Cuckoo Systems All rights reserved.

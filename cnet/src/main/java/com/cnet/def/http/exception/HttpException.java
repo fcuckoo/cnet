@@ -1,10 +1,5 @@
-/**
- * 
- * 文件描述：
- * May 15, 2012 10:50:34 AM
- *
- */
 package com.cnet.def.http.exception;
+
 
 import com.cnet.def.http.resp.IErrResp;
 
@@ -20,6 +15,9 @@ public class HttpException extends RuntimeException implements IErrResp{
 	private static final long serialVersionUID = 1L;
 	private int statusCode;
 	private Object tag;
+	private int  errorCode;
+	//http状态码
+	private int httpStatusCode ;
 	/**
 	 *
 	 * 适用场景：
@@ -34,7 +32,7 @@ public class HttpException extends RuntimeException implements IErrResp{
 		super(detailMessage, throwable);
 		this.statusCode = statusCode;
 	}
-	
+
 	/**
 	 *
 	 * 适用场景：
@@ -48,7 +46,22 @@ public class HttpException extends RuntimeException implements IErrResp{
 		super(detailMessage);
 		this.statusCode = statusCode;
 	}
-	
+
+	/**
+	 *
+	 * 适用场景：
+	 *
+	 * @param statusCode
+	 * @param detailMessage
+	 *
+	 */
+	public HttpException(int statusCode, String detailMessage,int errorCode) {
+
+		super(detailMessage);
+		this.statusCode = statusCode;
+		this.errorCode=errorCode;
+	}
+
 
 	/**
 	 *
@@ -106,5 +119,18 @@ public class HttpException extends RuntimeException implements IErrResp{
 	@Override
 	public String getErrMsg() {
 		return getMessage();
+	}
+
+	@Override
+	public int getErrorCode() {
+		return errorCode;
+	}
+
+	public void setHttpStatusCode(int httpStatusCode) {
+		this.httpStatusCode = httpStatusCode;
+	}
+
+	public int getHttpStatusCode() {
+		return httpStatusCode;
 	}
 }

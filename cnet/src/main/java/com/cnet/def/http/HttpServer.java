@@ -11,6 +11,7 @@ import com.cnet.def.http.resp.IRespBase;
 import com.cnet.impl.volley.VolleyHttpServer;
 import com.cutil.log.ILog;
 
+
 /**
  * @author Cuckoo
  * @date 2016-09-02
@@ -70,11 +71,38 @@ public class HttpServer {
      * 异步请求数据，请求的接口可以是多个也可以是单个
      *
      * @param requestCallback
+     * @param baseRespClass
+     *      返回json的第一级节点信息， 需要实现{@link IRespBase}接口
+     * @param requestList 请求列表
+     * @return
+     */
+    public static boolean getData(IReqCallback requestCallback,Class baseRespClass, IBaseRequest... requestList) {
+        return getData(requestCallback,null,baseRespClass,null, requestList);
+    }
+
+    /**
+     * 异步请求数据，请求的接口可以是多个也可以是单个
+     *
+     * @param requestCallback
      * @param requestList 请求列表
      * @return
      */
     public static boolean getData(IReqCallback requestCallback, IBaseRequest... requestList) {
-        return getData(requestCallback,null,requestList);
+        return getData(requestCallback,null,null,null,requestList);
+    }
+
+    /**
+     * 异步请求数据，请求的接口可以是多个也可以是单个
+     *
+     * @param requestCallback
+     * @param httpServer
+     *      自定义
+     * @param requestList 请求列表
+     * @return
+     */
+    public static boolean getData(IReqCallback requestCallback, IHttpServer httpServer,
+                                  IBaseRequest... requestList) {
+        return getData(requestCallback,null,null,httpServer,requestList);
     }
 
     /**
@@ -88,7 +116,26 @@ public class HttpServer {
      * @return
      */
     public static boolean getData(IReqCallback requestCallback, IReqRefactor requestRefactor, IBaseRequest... requestList) {
-        return ImplHttpServer.getData(requestCallback,requestRefactor,requestList);
+        return getData(requestCallback,requestRefactor,null,null,requestList);
+    }
+        /**
+         * 异步请求数据， 请求接口可是是多个也可以是单个。 在请求每次接口之前会调用{@link IReqRefactor#onRequestRefactor(int, CAbstractRequst)} 方法判断是否需要更改请求参数
+         * @param requestCallback
+         *      请求接口回调
+         * @param requestRefactor
+         *      请求参数更改回调
+         * @param baseRespClass
+         *      返回json的第一级节点信息， 需要实现{@link IRespBase}接口
+         * @param httpServer
+         *      自己指定实现框架
+         * @param requestList
+         *      请求接口信息
+         * @return
+         */
+    public static boolean getData(IReqCallback requestCallback, IReqRefactor requestRefactor,
+                                  Class baseRespClass, IHttpServer httpServer,
+                                  IBaseRequest... requestList) {
+        return ImplHttpServer.getData(requestCallback,requestRefactor,baseRespClass,httpServer,requestList);
     }
 
     /**
@@ -105,6 +152,8 @@ public class HttpServer {
         return ImplHttpServer.downloadFile(url, destinationPath,isAllow3G,downloadCallback);
     }
 
+
+
     /**
      * Get default http executor
      * @return
@@ -112,4 +161,5 @@ public class HttpServer {
     public static IHttpServer getDefHttpExecutor(){
         return ImplHttpServer.getDefHttpExecutor();
     }
+
 }

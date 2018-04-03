@@ -14,6 +14,7 @@ import com.cutil.CListUtil;
 import com.cutil.log.CLog;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Vector;
 
 /**
@@ -87,16 +88,19 @@ public class ReqDispatcher {
      *
      * @return
      */
-    public boolean onDispatch() {
+    public synchronized boolean onDispatch() {
         if (CListUtil.isEmpty(allMajorRequests)) {
             return false;
         }
         CLog.d(CNet.LOG_TAG,"==dispatch all requests==\nsize=["+ CListUtil.getSize(allMajorRequests) + "]");
         //并发执行所有请求
         IBaseRequest request = null;
-        for (int i = 0; i < allMajorRequests.size(); i++) {
-            request = allMajorRequests.get(i);
-            if (i == 0) {
+        Iterator<IBaseRequest> it = allMajorRequests.iterator();
+        boolean isFirst = true ;
+        while( it.hasNext() ){
+            request = it.next();
+            if ( isFirst ) {
+                isFirst = false ;
                 isShowLoading = request.isShowLoadding();
                 if (isShowLoading) {
                     //显示loading
@@ -125,7 +129,7 @@ public class ReqDispatcher {
      *
      * @param req
      */
-    private void addUnExecRequest(IBaseRequest req) {
+    private synchronized void addUnExecRequest(IBaseRequest req) {
         if (unExecReqList == null) {
             unExecReqList = new ArrayList<>();
         }
@@ -141,39 +145,37 @@ public class ReqDispatcher {
      *  子请求，既{@link IBaseRequest#getSyncReqList()}中的请求
      * @param errResp 请求是否失败， 如果失败返回具体错误信息
      */
-    private void respComplete(IBaseRequest majorReq, CAbstractRequst request, IErrResp errResp) {
-        synchronized (this) {
-            if (errResp != null ) {
-                if(reqErrorReceiver != null ){
-                    reqErrorReceiver.onReceiveError(majorReq,request,errResp);
-                }
+    private synchronized void respComplete(IBaseRequest majorReq, CAbstractRequst request, IErrResp errResp) {
+        if (errResp != null) {
+            if (reqErrorReceiver != null) {
+                reqErrorReceiver.onReceiveError(majorReq, request, errResp);
+            }
 
+        }
+        if (!CListUtil.isEmpty(unExecReqList)) {
+            //移除未正常执行的请求
+            ArrayList tempList = (ArrayList<IBaseRequest>) unExecReqList.clone();
+            boolean isSuccess = allMajorRequests.removeAll(tempList);
+            if (isSuccess) {
+                unExecReqList.removeAll(tempList);
             }
-            if(!CListUtil.isEmpty(unExecReqList)){
-                //移除未正常执行的请求
-                ArrayList tempList = (ArrayList<IBaseRequest>)unExecReqList.clone();
-                boolean isSuccess = allMajorRequests.removeAll(tempList);
-                if( isSuccess ){
-                    unExecReqList.removeAll(tempList);
-                }
-            }
-            if (!CListUtil.isEmpty(allMajorRequests)) {
-                allMajorRequests.remove(majorReq);
+        }
+        if (!CListUtil.isEmpty(allMajorRequests)) {
+            allMajorRequests.remove(majorReq);
 
+        }
+        if (CListUtil.isEmpty(allMajorRequests)) {
+            //请求完全结束
+            if (isShowLoading) {
+                HttpServerHelper.dismissLoading(reqCallback);
             }
-            if(CListUtil.isEmpty(allMajorRequests)){
-                //请求完全结束
-                if( isShowLoading ){
-                    HttpServerHelper.dismissLoading(reqCallback);
-                }
-                if(reqErrorReceiver != null ){
-                    //处理并显示错误信息
-                    reqErrorReceiver.onShowError(reqCallback);
-                }
-                //通知所有请求结束
-                HttpServerHelper.onAllRequestDone(request,reqCallback);
-                release();
+            if (reqErrorReceiver != null) {
+                //处理并显示错误信息
+                reqErrorReceiver.onShowError(reqCallback);
             }
+            //通知所有请求结束
+            HttpServerHelper.onAllRequestDone(request, reqCallback);
+            release();
         }
     }
 
@@ -194,7 +196,7 @@ public class ReqDispatcher {
         return allReqsComplete;
     }
 
-    public void release(){
+    public synchronized void release(){
         if(allMajorRequests != null ){
             allMajorRequests.clear();
             allMajorRequests = null ;

@@ -9,7 +9,7 @@ import com.cnet.def.http.resp.IErrResp;
  * @author Cuckoo
  * @date 2016-12-26
  * @descripton
- *      请求结束回调
+ *      单次请求结束回调
  */
 
 public interface IReqCompleteCallback {

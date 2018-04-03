@@ -181,7 +181,7 @@ public class HttpServerHelper {
      * @param status
      * @return
      */
-    protected static boolean isInnerError(int status){
+    public static boolean isInnerError(int status){
         if( innerErrStatusSet == null ){
             innerErrStatusSet = new HashSet<>();
             innerErrStatusSet.add(IErrResp.STATUS_RESPNULL);
@@ -191,6 +191,11 @@ public class HttpServerHelper {
             innerErrStatusSet.add(IErrResp.STATUS_PARSE_JSON_ERROR);
             innerErrStatusSet.add(IErrResp.STATUS_BASERESPONSE_ERROR);
             innerErrStatusSet.add(IErrResp.STATUS_UNKNOWN);
+            innerErrStatusSet.add(IErrResp.STATUS_NONET);
+            innerErrStatusSet.add(IErrResp.STATUS_CUSTOM_TIMEOUT_BREAK);
+            innerErrStatusSet.add(IErrResp.STATUS_UNKNOWN_HOST);
+            innerErrStatusSet.add(IErrResp.STATUS_CONNECT_EXCEPTION);
+
         }
         return innerErrStatusSet.contains(status);
     }

@@ -11,6 +11,7 @@ import com.cutil.ST;
 import com.cutil.log.ILog;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -25,7 +26,7 @@ import java.util.Map;
  *      The config of http request.
  *
  */
-public class CAbstractRequst<T> {
+public class CAbstractRequst<T> implements Serializable{
     /****************************************************************/
     /*************************Http config ***************************/
     /****************************************************************/
